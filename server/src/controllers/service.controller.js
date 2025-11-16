@@ -1,4 +1,4 @@
-const Service = require("../models/Service");
+const Service = require('../models/Service');
 
 // Create Service
 async function createService(req, res) {
@@ -27,7 +27,7 @@ async function getServices(req, res) {
 async function getServiceById(req, res) {
   try {
     const service = await Service.findById(req.params.id);
-    if (!service) return res.status(404).json({ message: "Service not found" });
+    if (!service) return res.status(404).json({ message: 'Service not found' });
     res.json(service);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -39,13 +39,15 @@ async function updateService(req, res) {
   try {
     const service = await Service.findById(req.params.id);
 
-    if (!service) return res.status(404).json({ message: "Service not found" });
+    if (!service) return res.status(404).json({ message: 'Service not found' });
 
     // Only provider can update
     if (service.providerId.toString() !== req.user.id)
-      return res.status(403).json({ message: "Not allowed" });
+      return res.status(403).json({ message: 'Not allowed' });
 
-    const updated = await Service.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const updated = await Service.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+    });
 
     res.json(updated);
   } catch (error) {
@@ -58,14 +60,14 @@ async function deleteService(req, res) {
   try {
     const service = await Service.findById(req.params.id);
 
-    if (!service) return res.status(404).json({ message: "Service not found" });
+    if (!service) return res.status(404).json({ message: 'Service not found' });
 
     // Only provider can delete
     if (service.providerId.toString() !== req.user.id)
-      return res.status(403).json({ message: "Not allowed" });
+      return res.status(403).json({ message: 'Not allowed' });
 
     await service.deleteOne();
-    res.json({ message: "Service deleted" });
+    res.json({ message: 'Service deleted' });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
