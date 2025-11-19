@@ -43,10 +43,11 @@ async function updateService(req, res) {
 
     // Only provider can update
     if (service.providerId.toString() !== req.user.id)
-      return res.status(403).json({ message: 'Not allowed' });
+      return res.status(403).json({ message: 'Not allowed to edit service' });
 
     const updated = await Service.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
+      runValidators: true,
     });
 
     res.json(updated);

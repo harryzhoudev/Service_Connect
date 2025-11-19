@@ -5,7 +5,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import Services from './pages/Services';
- 
+
 function App() {
   return (
     <BrowserRouter>
@@ -20,5 +20,5 @@ function App() {
     </BrowserRouter>
   );
 }
- 
+
 export default App;

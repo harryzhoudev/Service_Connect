@@ -1,9 +1,10 @@
-const { Router } = require("express");
-const { requireAuth } = require("../middleware/auth");
+const { Router } = require('express');
+const { requireAuth, requireRole } = require('../middleware/auth');
 
 const router = Router();
 
-router.get("/me", requireAuth, (req, res) => {
+// /api/users
+router.get('/me', requireAuth, requireRole(['user']), (req, res) => {
   res.json({ user: req.userDoc });
 });
 
