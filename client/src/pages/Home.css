@@ -1,0 +1,84 @@
+/* === Background === */
+.landing-container {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  background-color: #4a0028; /* Dark maroon from your theme */
+  color: #f2f2f2;
+  text-align: center;
+  padding: 20px;
+}
+
+/* === Logo + Title === */
+.logo-section {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.logo {
+  width: 120px;
+  height: auto;
+  filter: drop-shadow(0 0 8px rgba(255, 0, 100, 0.4));
+}
+
+.site-title {
+  font-size: 3rem;
+  font-weight: 900;
+  letter-spacing: 3px;
+  color: #ff2975; /* Pink from your logo */
+  text-transform: uppercase;
+}
+
+/* === Tagline === */
+.tagline {
+  font-size: 1.3rem;
+  color: #ffd2e5;
+  max-width: 500px;
+  margin-top: 10px;
+  margin-bottom: 30px;
+}
+
+/* === Call-to-action Buttons === */
+.cta-buttons {
+  display: flex;
+  gap: 20px;
+}
+
+.btn-main {
+  background-color: #ff2975;
+  color: white;
+  padding: 12px 28px;
+  font-size: 1rem;
+  font-weight: bold;
+  border-radius: 6px;
+  text-decoration: none;
+  transition: 0.3s ease;
+}
+
+.btn-main:hover {
+  background-color: #ff0f60;
+  transform: translateY(-2px);
+}
+
+.btn-outline {
+  border: 2px solid #ff2975;
+  color: #ff2975;
+  padding: 12px 28px;
+  font-size: 1rem;
+  font-weight: bold;
+  border-radius: 6px;
+  text-decoration: none;
+  transition: 0.3s ease;
+}
+
+.btn-outline:hover {
+  background-color: #ff2975;
+  color: #fff;
+  transform: translateY(-2px);
+}
