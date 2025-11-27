@@ -68,86 +68,168 @@ Create a Postman Environment (e.g., `ServiceConnect Local`) and add variables:
 
 ### Register (example)
 POST {{baseUrl}}/api/auth/register
-Headers: `Content-Type: application/json`
-Body (raw JSON):
+```markdown
+# Service Connect — Server README
+
+This document summarizes recent role-related changes, the new superuser seed, and gives Postman/cURL examples you can use to test role-based behavior locally.
+
+**Important**: This README focuses only on server changes. See the `client/` README for frontend details.
+
+**Superuser credentials created for local testing**
+- email: `admin@admin.com`
+- name: `admin`
+- password: `Adminpasss`
+- role: `superuser`
+
+To (re)create the superuser locally run:
+```powershell
+cd server
+npm run seed-admin
+```
+
+What changed (high level)
+- Roles: `user`, `provider`, `admin`, `superuser` are now supported (stored in `src/models/User.js`).
+- Role enforcement: `src/middleware/auth.js` exposes `requireAuth` and `requireRole(...)`.
+  - `requireRole(...)` accepts either `requireRole('user')` or `requireRole(['user','provider'])`.
+  - `admin` and `superuser` bypass route role checks (they still must present a valid token).
+- Routes and controllers updated to enforce role behaviors:
+  - Providers may create/update/delete services they own. `superuser`/`admin` may also modify/delete services.
+  - Users (customers) may view services and create bookings.
+  - Providers may view bookings for services they own.
+- Seed script: `server/scripts/seed_admin.js` creates the `superuser` account.
+
+Allowed `Service.category` values
+- The `Service` model enforces an enum for `category`. Use one of:
+  - `plumbing`
+  - `electrical`
+  - `moving`
+  - `cleaning`
+  - `other`
+
+Local setup and common commands
+1. Install and start server:
+```powershell
+cd server
+npm install
+npm run dev
+```
+2. (Optional) Seed the superuser:
+```powershell
+npm run seed-admin
+```
+
+API quick reference (base URL: `http://localhost:4000`)
+- POST `/api/auth/register` — register a new user (role may be `user` or `provider` during registration)
+- POST `/api/auth/login` — login and receive a JWT token
+- GET `/api/services` — list services
+- GET `/api/services/:id` — get single service
+- POST `/api/services` — create service (protected — provider or superuser/admin)
+- PUT `/api/services/:id` — update service (provider owning service or superuser/admin)
+- DELETE `/api/services/:id` — delete service (provider owning service or superuser/admin)
+- POST `/api/services/:id/booking` — create booking (user role)
+- GET `/api/services/:id/booking` — provider may view bookings for their service
+
+Postman / testing examples
+Create a Postman environment with variables:
+- `baseUrl` = `http://localhost:4000`
+- `token` = (empty initially)
+- `serviceId` = (empty)
+
+1) Register a provider
+- Request
+  - POST `{{baseUrl}}/api/auth/register`
+  - Headers: `Content-Type: application/json`
+  - Body:
 ```json
 {
-  "name": "Alice",
-  "email": "alice@example.com",
-  "password": "password123",
+  "name": "Provider One",
+  "email": "provider1@test.com",
+  "password": "ProviderPass1",
   "role": "provider"
 }
 ```
-Expected response: JSON with `token` and `user`.
 
-### Login (example)
-POST {{baseUrl}}/api/auth/login
-Body (raw JSON):
+2) Register a user (customer)
+- Request
+  - POST `{{baseUrl}}/api/auth/register`
+  - Body:
 ```json
 {
-  "email": "alice@example.com",
-  "password": "password123"
+  "name": "User One",
+  "email": "user1@test.com",
+  "password": "UserPass1"
 }
 ```
-Save the returned `token` into your Postman environment variable `token`.
 
-### Use token for protected requests
-In request headers add:
-```
-Authorization: Bearer {{token}}
-```
-Or use Postman's Authorization tab and set type to Bearer Token with value `{{token}}`.
-
-### Create Service (protected)
-POST {{baseUrl}}/api/services
-Headers: `Content-Type: application/json`, `Authorization: Bearer {{token}}`
-Body:
+3) Login (get token)
+- Request
+  - POST `{{baseUrl}}/api/auth/login`
+  - Body:
 ```json
 {
-  "title": "Lawn Mowing",
-  "description": "Weekly lawn mowing",
-  "category": "Gardening",
-  "price": 35
+  "email": "provider1@test.com",
+  "password": "ProviderPass1"
 }
 ```
-Response: created service object with `_id` — save as `serviceId` if desired.
+- Response contains `token`. Save it into `{{token}}`.
 
-### Get All Services (public)
-GET {{baseUrl}}/api/services
-
-### Get by ID (public)
-GET {{baseUrl}}/api/services/{{serviceId}}
-
-### Update Service (protected, provider only)
-PUT {{baseUrl}}/api/services/{{serviceId}}
-Headers: `Authorization: Bearer {{token}}`
-Body (example):
+4) Create a service (provider)
+- Request
+  - POST `{{baseUrl}}/api/services`
+  - Header: `Authorization: Bearer {{token}}`, `Content-Type: application/json`
+  - Body (category must match enum):
 ```json
-{ "price": 40 }
+{
+  "title": "Home Cleaning",
+  "description": "Thorough apartment cleaning",
+  "category": "cleaning",
+  "price": 80
+}
+```
+- Response: service object with `_id` — save into `{{serviceId}}`.
+
+5) Create a booking (user)
+- Login as the user created above, set `{{token}}` to that token.
+- Request
+  - POST `{{baseUrl}}/api/services/{{serviceId}}/booking`
+  - Header: `Authorization: Bearer {{token}}`
+  - Body:
+```json
+{
+  "date": "2025-12-01",
+  "notes": "Please arrive on time"
+}
 ```
 
-### Delete Service (protected, provider only)
-DELETE {{baseUrl}}/api/services/{{serviceId}}
-Headers: `Authorization: Bearer {{token}}`
+6) Superuser quick test
+- Login as the seeded superuser (`admin@admin.com` / `Adminpasss`) and obtain token.
+- Using the superuser token, you can create/update/delete services (the middleware allows `admin`/`superuser` to bypass route role checks). Note: service data still must pass model validation (eg. `category` must be one of the allowed values).
 
-## Example Postman code snippets (cURL)
-
-Register (cURL):
+Examples: cURL and PowerShell
+- Login (cURL):
 ```bash
-curl -X POST "{{baseUrl}}/api/auth/register" -H "Content-Type: application/json" -d '{"name":"Alice","email":"alice@example.com","password":"password123","role":"provider"}'
+curl -X POST "http://localhost:4000/api/auth/login" -H "Content-Type: application/json" -d '{"email":"admin@admin.com","password":"Adminpasss"}'
 ```
-
-Login (cURL):
+- Create service (cURL) — replace `<TOKEN>` with the JWT:
 ```bash
-curl -X POST "{{baseUrl}}/api/auth/login" -H "Content-Type: application/json" -d '{"email":"alice@example.com","password":"password123"}'
+curl -X POST "http://localhost:4000/api/services" -H "Content-Type: application/json" -H "Authorization: Bearer <TOKEN>" -d '{"title":"Lawn Mowing","description":"Weekly","category":"other","price":35}'
+```
+- Login + create service example (PowerShell):
+```powershell
+#$login = Invoke-RestMethod -Method Post -Uri 'http://localhost:4000/api/auth/login' -ContentType 'application/json' -Body '{"email":"admin@admin.com","password":"Adminpasss"}'
+#$token = $login.token
+#Invoke-RestMethod -Method Post -Uri 'http://localhost:4000/api/services' -Headers @{ Authorization = "Bearer $token" } -ContentType 'application/json' -Body '{"title":"Svc","description":"desc","category":"other","price":10}'
 ```
 
-Create service (cURL):
-```bash
-curl -X POST "{{baseUrl}}/api/services" -H "Content-Type: application/json" -H "Authorization: Bearer <TOKEN>" -d '{"title":"Lawn Mowing","description":"Weekly","category":"Gardening","price":35}'
-```
+Notes & recommendations
+- The server will fall back to a local MongoDB at `mongodb://127.0.0.1:27017/service_connect_db` if `MONGO_URI` is not set. For production, set `MONGO_URI` to your managed DB.
+- For local testing we use a development JWT secret if RSA keys are not provided. In production, use RS256 keys or a strong HS256 secret of length >= 32.
+- Registration allows `provider` and `user` values only. `admin` and `superuser` must be created via the seed script or directly in the database.
+- If you prefer administrator approval for providers, I can add an admin-only endpoint to promote a `user` to `provider` instead of allowing self-registration.
 
-Replace `<TOKEN>` with the token you obtained from login.
+---
+End of server README.
+```
 
 
 

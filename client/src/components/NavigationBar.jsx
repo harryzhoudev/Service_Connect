@@ -1,10 +1,11 @@
-import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { useEffect, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../pages/navbar.css";
 
 export default function Navbar() {
   const [user, setUser] = useState(null);
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     const saved = localStorage.getItem("user");
@@ -35,31 +36,48 @@ export default function Navbar() {
         <span className="nav-title">SERVICECONNECT</span>
       </div>
 
-      <div className="nav-links">
-        <Link to="/">Home</Link>
-        <Link to="/services">Services</Link>
+      <button
+        className="hamburger"
+        aria-label="Toggle navigation"
+        aria-expanded={open}
+        onClick={() => setOpen((s) => !s)}
+      >
+        <span className="hamburger-bar" />
+        <span className="hamburger-bar" />
+        <span className="hamburger-bar" />
+      </button>
+
+      <div className={`nav-links ${open ? "open" : ""}`}>
+        <NavLink to="/" end onClick={() => setOpen(false)}>
+          Home
+        </NavLink>
+        <NavLink to="/services" onClick={() => setOpen(false)}>
+          Services
+        </NavLink>
 
         {!user && (
           <>
-            <Link to="/login">Login</Link>
-            <Link to="/register">Register</Link>
+            <NavLink to="/login" onClick={() => setOpen(false)}>
+              Login
+            </NavLink>
+            <NavLink to="/register" onClick={() => setOpen(false)}>
+              Register
+            </NavLink>
           </>
         )}
 
         {user && (
           <>
-            <Link to="/dashboard">My Profile</Link>
-            <button
-              type="button"
-              className="logout-button"
-              onClick={handleLogout}
-              style={{
-                background: "transparent",
-                border: "none",
-                color: "#f97373",
-                cursor: "pointer",
-              }}
-            >
+            <NavLink to="/profile" onClick={() => setOpen(false)}>
+              My Profile
+            </NavLink>
+            {user?.role === 'provider' && (
+              <NavLink to="/dashboard" onClick={() => setOpen(false)}>
+                My Services
+              </NavLink>
+            )}
+            <span className="user-badge">{user?.name || user?.username}</span>
+            <button type="button" className="logout-link" onClick={handleLogout}>
               Logout
             </button>
           </>

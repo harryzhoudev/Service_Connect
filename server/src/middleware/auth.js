@@ -34,7 +34,20 @@ async function requireAuth(req, res, next) {
 //function to check if user has the required role privileges to proceed with the request/route. Could be a singular role or multiple roles, hence the spread operator.
 function requireRole(...roles) {
   return (req, res, next) => {
-    if (!req.user || !roles.includes(req.user.role)) {
+    // normalize roles: accept both requireRole('user') and requireRole(['user'])
+    let allowedRoles = [];
+    if (roles.length === 1 && Array.isArray(roles[0])) {
+      allowedRoles = roles[0];
+    } else {
+      allowedRoles = roles;
+    }
+
+    // superuser or admin bypasses role checks
+    if (req.user && (req.user.role === 'superuser' || req.user.role === 'admin')) {
+      return next();
+    }
+
+    if (!req.user || !allowedRoles.includes(req.user.role)) {
       return res.status(403).json({ message: 'Forbidden' });
     }
     next();

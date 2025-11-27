@@ -17,23 +17,19 @@ const {
 const { requireAuth, requireRole } = require('../middleware/auth');
 
 // /api/services
-router.get('/', requireAuth, requireRole(['user']), getServices);
-router.get('/:id', requireAuth, requireRole(['user']), getServiceById);
+// viewing services: make listing and single service public (no auth required)
+router.get('/', getServices);
+router.get('/:id', getServiceById);
 
 // /api/services/:id/booking
-// endpoint for booking seeing all the booking of the service while in service detail page. Only users that has posted (provider) the service can view all the booking. otherwise 403 status.
-router.get(
-  '/:id/booking',
-  requireAuth,
-  requireRole(['user']),
-  getServiceBookings
-);
-// /api/services/:id/booking
-// endpoint for booking a service from the service details page
+// viewing bookings for a service: provider (owner) or superuser/admin
+router.get('/:id/booking', requireAuth, requireRole(['provider']), getServiceBookings);
+// booking a service: only customers (users) can create bookings
 router.post('/:id/booking', requireAuth, requireRole(['user']), createBooking);
 
-router.post('/', requireAuth, requireRole(['user']), createService);
-router.put('/:id', requireAuth, requireRole(['user']), updateService);
-router.delete('/:id', requireAuth, requireRole(['user']), deleteService);
+// service management: only providers (and superuser/admin via middleware bypass) can create/update/delete
+router.post('/', requireAuth, requireRole(['provider']), createService);
+router.put('/:id', requireAuth, requireRole(['provider']), updateService);
+router.delete('/:id', requireAuth, requireRole(['provider']), deleteService);
 
 module.exports = router;

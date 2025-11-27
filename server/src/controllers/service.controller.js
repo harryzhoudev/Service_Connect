@@ -41,8 +41,11 @@ async function updateService(req, res) {
 
     if (!service) return res.status(404).json({ message: 'Service not found' });
 
-    // Only provider can update
-    if (service.providerId.toString() !== req.user.id)
+    // Only provider (or superuser/admin) can update
+    if (
+      service.providerId.toString() !== req.user.id &&
+      !(req.user.role === 'superuser' || req.user.role === 'admin')
+    )
       return res.status(403).json({ message: 'Not allowed to edit service' });
 
     const updated = await Service.findByIdAndUpdate(req.params.id, req.body, {
@@ -63,8 +66,11 @@ async function deleteService(req, res) {
 
     if (!service) return res.status(404).json({ message: 'Service not found' });
 
-    // Only provider can delete
-    if (service.providerId.toString() !== req.user.id)
+    // Only provider (or superuser/admin) can delete
+    if (
+      service.providerId.toString() !== req.user.id &&
+      !(req.user.role === 'superuser' || req.user.role === 'admin')
+    )
       return res.status(403).json({ message: 'Not allowed' });
 
     await service.deleteOne();

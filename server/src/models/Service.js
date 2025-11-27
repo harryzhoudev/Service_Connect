@@ -16,7 +16,7 @@ const serviceSchema = new mongoose.Schema(
       type: String,
       required: true,
       trim: true,
-      enum: ['plumbing', 'electrical', 'moving', 'cleaning', 'other'],
+      enum: ['plumbing', 'electrical', 'moving', 'cleaning', 'gardening', 'other'],
     },
     price: {
       type: Number,

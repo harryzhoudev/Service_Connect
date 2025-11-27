@@ -10,9 +10,9 @@ const {
 
 const { requireAuth, requireRole } = require('../middleware/auth');
 
-router.get('/', requireAuth, requireRole(['user']), getUserBookings);
-router.get('/:id', requireAuth, requireRole(['user']), getBookingById);
-router.put('/:id', requireAuth, requireRole(['user']), updateBooking);
+router.get('/', requireAuth, getUserBookings);
+router.get('/:id', requireAuth, getBookingById);
+router.put('/:id', requireAuth, updateBooking);
 router.delete('/:id', requireAuth, deleteBooking);
 
 module.exports = router;

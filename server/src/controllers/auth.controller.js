@@ -32,7 +32,8 @@ async function register(req, res) {
     //Capture user details
     const { name, email, password, role } = req.body;
     //Restrict roles to safe values, prevent user from registering themselves as admin
-    const safeRoles = ['user'];
+    //Allowing 'provider' so users can sign up as service providers
+    const safeRoles = ['user', 'provider'];
     //Check for missing fields from user input
     if (!name || !email || !password)
       return res.status(400).json({ message: 'Missing required fields' });

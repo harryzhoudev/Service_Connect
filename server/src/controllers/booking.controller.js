@@ -5,7 +5,7 @@ const Service = require('../models/Service');
 async function createBooking(req, res) {
   try {
     const { date, notes } = req.body;
-    const { serviceId } = req.params;
+    const serviceId = req.params.id || req.params.serviceId;
 
     //load service
     const service = await Service.findById(serviceId);
@@ -74,7 +74,7 @@ async function getUserBookings(req, res) {
 async function getServiceBookings(req, res) {
   try {
     const userId = req.user.id;
-    const { serviceId } = req.params;
+    const serviceId = req.params.id || req.params.serviceId;
 
     const service = await Service.findById(serviceId);
 
@@ -122,7 +122,7 @@ async function getBookingById(req, res) {
 
 async function updateBooking(req, res) {
   try {
-    const { bookingId } = req.params;
+    const bookingId = req.params.id || req.params.bookingId;
     const userId = req.user.id;
     const userRole = req.user.role;
     const { action, date, notes } = req.body;
@@ -138,7 +138,7 @@ async function updateBooking(req, res) {
 
     const isCustomer = booking.customer._id.toString() === userId;
     const isProvider = booking.provider._id.toString() === userId;
-    const isAdmin = userRole === 'admin';
+    const isAdmin = userRole === 'admin' || userRole === 'superuser';
 
     if (!isCustomer && !isProvider && !isAdmin) {
       return res
@@ -218,7 +218,7 @@ async function updateBooking(req, res) {
 //Delete booking
 async function deleteBooking(req, res) {
   try {
-    const { bookingId } = req.params;
+    const bookingId = req.params.id || req.params.bookingId;
     const userId = req.user.id;
     const userRole = req.user.role;
 
@@ -230,7 +230,7 @@ async function deleteBooking(req, res) {
 
     const isCustomer = booking.customer.toString() === userId;
     const isProvider = booking.provider.toString() === userId;
-    const isAdmin = userRole === 'admin';
+    const isAdmin = userRole === 'admin' || userRole === 'superuser';
 
     // Only someone involved in the booking (or admin) can delete it
     if (!isCustomer && !isProvider && !isAdmin) {
