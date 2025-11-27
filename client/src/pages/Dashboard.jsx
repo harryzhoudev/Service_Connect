@@ -1,3 +1,8 @@
 export default function Dashboard() {
-  return <h2>Dashboard</h2>;
+  return (
+    <div style={{ padding: "40px" }}>
+      <h1>Dashboard</h1>
+      <p>Welcome to your dashboard!</p>
+    </div>
+  );
 }
