@@ -33,7 +33,9 @@ export default function Services() {
         setLoading(false);
       }
     }
+
     load();
+
     // refresh when token/user changes in another tab
     const onStorage = (e) => {
       if (e.key === 'token' || e.key === 'user') load();
@@ -64,10 +66,12 @@ export default function Services() {
   return (
     <div style={{ padding: 20 }}>
       <h2>Services</h2>
-      {currentUser && currentUser.role === 'provider' && (
+
+      {/* Any logged-in user can provide a service */}
+      {currentUser && (
         <div style={{ marginBottom: 12 }}>
-          <Link to="/services/new">
-            <button>Create Service</button>
+          <Link to='/services/new'>
+            <button>Provide Service</button>
           </Link>
         </div>
       )}
@@ -76,40 +80,69 @@ export default function Services() {
 
       <div style={{ display: 'grid', gap: 12 }}>
         {services.map((svc) => {
-          const providerId = svc.providerId?._id || svc.providerId || svc.provider || svc.providerId;
-          const isOwner = currentUser && providerId && currentUser.id === String(providerId);
-          const canManage = isOwner || (currentUser && ['admin', 'superuser'].includes(currentUser.role));
+          const providerId =
+            svc.providerId?._id ||
+            svc.providerId ||
+            svc.provider ||
+            svc.providerId;
+
+          const isOwner =
+            currentUser && providerId && currentUser.id === String(providerId);
+
+          const canManage =
+            isOwner ||
+            (currentUser && ['admin', 'superuser'].includes(currentUser.role));
+
+          // provider display name (matches detail/booking logic)
+          const providerName =
+            svc.providerId?.name ||
+            svc.providerId?.username ||
+            svc.providerId?.email ||
+            'Unknown provider';
 
           return (
             <div
               key={svc._id || svc.id}
-              style={{ border: '1px solid #ddd', padding: 12, borderRadius: 6 }}
+              style={{
+                border: '1px solid #ddd',
+                padding: 12,
+                borderRadius: 6,
+              }}
             >
               <h3>{svc.title}</h3>
               <p>{svc.description}</p>
+
               <div>
                 <strong>Category:</strong> {svc.category}
               </div>
               <div>
                 <strong>Price:</strong> ${svc.price}
               </div>
+              <div>
+                <strong>Provider:</strong> {providerName}
+              </div>
+
               <div style={{ marginTop: 8, display: 'flex', gap: 8 }}>
                 <Link to={`/services/${svc._id || svc.id}`}>
                   <button>View</button>
                 </Link>
 
-                {currentUser && currentUser.role === 'user' && (
+                {/* Any logged-in user can book as long as they're not the owner */}
+                {currentUser && !isOwner && (
                   <Link to={`/services/${svc._id || svc.id}/booking`}>
                     <button>Book</button>
                   </Link>
                 )}
 
+                {/* Owners (and admin/superuser) can manage */}
                 {canManage && (
                   <>
                     <Link to={`/services/${svc._id || svc.id}/edit`}>
                       <button>Edit</button>
                     </Link>
-                    <button onClick={() => handleDelete(svc._id || svc.id)}>Delete</button>
+                    <button onClick={() => handleDelete(svc._id || svc.id)}>
+                      Delete
+                    </button>
                   </>
                 )}
               </div>

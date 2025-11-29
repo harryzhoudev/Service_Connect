@@ -16,7 +16,10 @@ async function createService(req, res) {
 // Get All Services
 async function getServices(req, res) {
   try {
-    const services = await Service.find();
+    const services = await Service.find().populate(
+      'providerId',
+      'name username email'
+    );
     res.json(services);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -26,7 +29,11 @@ async function getServices(req, res) {
 // Get Service by ID
 async function getServiceById(req, res) {
   try {
-    const service = await Service.findById(req.params.id);
+    const service = await Service.findById(req.params.id).populate(
+      'providerId',
+      'name username email'
+    );
+
     if (!service) return res.status(404).json({ message: 'Service not found' });
     res.json(service);
   } catch (error) {
