@@ -3,7 +3,7 @@ const cors = require('cors');
 const morgan = require('morgan');
 
 // Route for monitoring server health. Things like uptime, hostname, etc. Useful for k8s liveness/readiness probes.
-const healthRouter = require('./routes/serverHealth.routes.js');
+const healthRouter = require('./routes/server.health.routes.js');
 
 // App routes
 // Auth routes

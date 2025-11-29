@@ -8,6 +8,7 @@ import Profile from './pages/Profile';
 import ServiceForm from './pages/ServiceForm';
 import ServiceDetail from './pages/ServiceDetail';
 import Services from './pages/Services';
+import ServiceBookingConfirm from './pages/ServiceBookingConfirm';
 
 function App() {
   return (
@@ -23,6 +24,10 @@ function App() {
         <Route path='/services/:id' element={<ServiceDetail />} />
         <Route path='/services/:id/edit' element={<ServiceForm />} />
         <Route path='/services' element={<Services />} />
+        <Route
+          path='/services/:id/booking'
+          element={<ServiceBookingConfirm />}
+        />
       </Routes>
     </BrowserRouter>
   );
