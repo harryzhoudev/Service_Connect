@@ -178,3 +178,92 @@ export default function Dashboard() {
     </div>
   );
 }
+
+// import { useEffect, useState } from "react";
+// import MyServicesSection from "../components/dashboard/MyServicesSection";
+
+// export default function Dashboard() {
+//   const [myServices, setMyServices] = useState([]);
+//   const [loadingServices, setLoadingServices] = useState(true);
+//   const [error, setError] = useState(null);
+
+//   // Load user from localStorage
+//   let currentUser = null;
+//   try {
+//     currentUser = JSON.parse(localStorage.getItem("user"));
+//   } catch {
+//     currentUser = null;
+//   }
+
+//   const token = localStorage.getItem("token");
+//   const userId = currentUser?.id || null;
+
+//   useEffect(() => {
+//     if (!token || !userId) {
+//       setError("You must be logged in to view the dashboard.");
+//       setLoadingServices(false);
+//       return;
+//     }
+
+//     async function loadServices() {
+//       setLoadingServices(true);
+//       try {
+//         const res = await fetch("/api/services", {
+//           headers: { Authorization: `Bearer ${token}` },
+//         });
+
+//         const data = await res.json();
+//         if (!res.ok) throw new Error(data.message || "Failed to load services");
+
+//         // Filter services created by this provider
+//         const my = (data || []).filter((svc) => {
+//           const providerId =
+//             svc.providerId?._id ||
+//             svc.providerId ||
+//             svc.provider ||
+//             svc.providerId;
+
+//           return providerId && userId && userId === String(providerId);
+//         });
+
+//         setMyServices(my);
+//       } catch (err) {
+//         setError(err.message);
+//       } finally {
+//         setLoadingServices(false);
+//       }
+//     }
+
+//     loadServices();
+//   }, [token, userId]);
+
+//   if (!userId || !token) {
+//     return (
+//       <div style={{ padding: 40 }}>
+//         <h1>Dashboard</h1>
+//         <p style={{ color: "red" }}>You must be logged in to view this page.</p>
+//       </div>
+//     );
+//   }
+
+//   return (
+//     <div style={{ padding: 40, maxWidth: 1100, margin: "0 auto" }}>
+//       <h1 style={{ marginBottom: 8 }}>Dashboard</h1>
+//       <p style={{ marginBottom: 24, color: "#555" }}>
+//         Your services listed on ServiceConnect.
+//       </p>
+
+//       {error && <div style={{ color: "red", marginBottom: 16 }}>{error}</div>}
+
+//       {loadingServices ? (
+//         <p>Loading your services…</p>
+//       ) : (
+//         <MyServicesSection
+//           myServices={myServices}
+//           setMyServices={setMyServices}
+//           token={token}
+//         />
+//       )}
+//     </div>
+//   );
+// }
